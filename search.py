@@ -19,6 +19,15 @@ Pacman agents (in searchAgents.py).
 
 import util
 
+#We tie the Node with its Parent and the Move we made to get there together
+#in order to be able to follow our initial path back
+class Node:
+    def __init__(self, state, parent, move): 
+        self.State = state
+        self.Parent = parent
+        self.Move = move
+
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -61,7 +70,6 @@ class SearchProblem:
         """
         util.raiseNotDefined()
 
-
 def tinyMazeSearch(problem):
     """
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
@@ -87,33 +95,15 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    from util import Stack
+    from util import Stack 
     
-    #We tie the Node with its Parent and the Move we made to get there together
-    #in order to be able to follow our initial path back
-    class Node:
-        def __init__(self, state, parent, move): 
-            self.State = state
-            self.Parent = parent
-            self.Move = move
-    
-    #DFS datastructure
+    #We use the stack for DFS
     frontier = Stack() 
     expanded = set() 
 
     #frontier = [startNode]
     startNode = Node(problem.getStartState(), None, None)
     frontier.push(startNode)
-
-    #Return path_to_node function
-    def path_to_Node(node):
-        path = []
-        #Until you reach the start node, add the moves to the path and check the parent node
-        while(node.Parent != None):
-            path.append(node.Move)
-            node = node.Parent
-        #We must return in the reverse order, the move we appended first is essentially the last
-        return path[::-1]
 
     #while frontier is not Empty
     while not frontier.isEmpty():
@@ -129,7 +119,7 @@ def depthFirstSearch(problem: SearchProblem):
             successors = problem.getSuccessors(node.State)
             #for its child of the node
             for successor in successors:
-                #we need to turn the successor into a node before pushing it to our stack
+                #We need to turn the successor into our Node class before pushing it to our stack
                 successorNode = Node(successor[0], node, successor[1])
                 #frontier push(child)
                 frontier.push(successorNode)
@@ -138,11 +128,68 @@ def depthFirstSearch(problem: SearchProblem):
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+    from util import Queue
+    
+    #We use the Queue for BFS
+    frontier = Queue()
+    expanded = set() 
+
+    #frontier = [startNode]
+    startNode = Node(problem.getStartState(), None, None)
+    frontier.push(startNode)
+
+    while not frontier.isEmpty():
+        node = frontier.pop()
+        #if isGoal(node)
+        if(problem.isGoalState(node.State)):
+            #return path_to_node
+            return path_to_Node(node)
+        #if node not in expanded
+        if node.State not in expanded:
+            #expanded.add(node)
+            expanded.add(node.State)
+            successors = problem.getSuccessors(node.State)
+            #for its child of the node
+            for successor in successors:
+                #We need to turn the successor into our Node class before pushing it to our stack
+                successorNode = Node(successor[0], node, successor[1])
+                #frontier push(child)
+                frontier.push(successorNode)
+
     util.raiseNotDefined()
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    from util import PriorityQueue
+   
+    #We use the PriorityQueue for UCS
+    frontier = PriorityQueue()
+    expanded = set() 
+
+    #frontier = [startNode]
+    startNode = Node(problem.getStartState(), None, None)
+    frontier.push(startNode, 0)
+
+    while not frontier.isEmpty():
+        node = frontier.pop()
+        #if isGoal(node)
+        if(problem.isGoalState(node.State)):
+            #return path_to_node
+            return path_to_Node(node)
+        #if node not in expanded
+        if node.State not in expanded:
+            #expanded.add(node)
+            expanded.add(node.State)
+            successors = problem.getSuccessors(node.State)
+            #for its child of the node
+            for successor in successors:
+                #We need to turn the successor into our Node class before pushing it to our stack
+                successorNode = Node(successor[0], node, successor[1])
+                #frontier push(child)
+                frontier.push(successorNode, successor[2])
+
+
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -155,16 +202,44 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    from util import PriorityQueueWithFunction
+   
+    #We use the PriorityQueueWithFunction for A*
+    frontier = PriorityQueueWithFunction(heuristic)
+    expanded = set() 
+
+    #frontier = [startNode]
+    startNode = Node(problem.getStartState(), None, None)
+    frontier.push(startNode)
+
+    while not frontier.isEmpty():
+        node = frontier.pop()
+        #if isGoal(node)
+        if(problem.isGoalState(node.State)):
+            #return path_to_node
+            return path_to_Node(node)
+        #if node not in expanded
+        if node.State not in expanded:
+            #expanded.add(node)
+            expanded.add(node.State)
+            successors = problem.getSuccessors(node.State)
+            #for its child of the node
+            for successor in successors:
+                #We need to turn the successor into our Node class before pushing it to our stack
+                successorNode = Node(successor[0], node, successor[1])
+                #frontier push(child)
+                frontier.push(successorNode)
     util.raiseNotDefined()
 
-#CUSTOM FUNCTION FOR GETTING NEIGHBOURING NODES
-def getNeighbourCoordinates(Succesors):
-    coordinateList = []
-    for neighbour in Succesors:
-        coordinateList.append(neighbour[0])
-    return coordinateList
-
-
+#Return path_to_node function
+def path_to_Node(node):
+    path = []
+    #Until you reach the start node, add the moves to the path and check the parent node
+    while(node.Parent != None):
+        path.append(node.Move)
+        node = node.Parent
+    #We must return in the reverse order, the move we appended first is essentially the last
+    return path[::-1]
 
 # Abbreviations
 bfs = breadthFirstSearch
