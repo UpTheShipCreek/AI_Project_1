@@ -19,8 +19,9 @@ Pacman agents (in searchAgents.py).
 
 import util
 
-###############################CLASSES AND FUNCTIONS THAT ALL METHODS USE###############################
-
+########################################################################################################
+############################## CLASSES AND FUNCTIONS THAT ALL METHODS USE ##############################
+########################################################################################################
 class Node:
     def __init__(self, state, parent, move): #We tie the Node with its Parent and the Move we made to get there together                                          
         self.State = state  #in order to be able to follow our initial path back
@@ -44,8 +45,9 @@ def path_to_Node(node):
         node = node.Parent
     #We must return in the reverse order, the move we appended first is essentially the last
     return path[::-1]
-###############################CLASSES AND FUNCTIONS THAT ALL METHODS USE###############################
-
+########################################################################################################
+############################## CLASSES AND FUNCTIONS THAT ALL METHODS USE ##############################
+########################################################################################################
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -150,7 +152,7 @@ def breadthFirstSearch(problem: SearchProblem):
     
     #We use the Queue for BFS
     frontier = Queue()
-    expanded = set() 
+    expanded = [] #Initially had a set() as instructed but I run into an hashing error completing the searchAgent's Corners test
 
     #frontier = [startNode]
     startNode = Node(problem.getStartState(), None, None)
@@ -165,7 +167,7 @@ def breadthFirstSearch(problem: SearchProblem):
         #if node not in expanded
         if node.State not in expanded:
             #expanded.add(node)
-            expanded.add(node.State)
+            expanded.append(node.State)
             successors = problem.getSuccessors(node.State)
             #for its child of the node
             for successor in successors:
@@ -224,7 +226,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
    
     #We use the PriorityQueue for A*
     frontier = PriorityQueue()
-    expanded = set() 
+    expanded = [] #Again for the same reason, I replaced the set() with a list 
 
     #frontier = [startNode]
     startNode = NodeWCost(problem.getStartState(), None, None, 0)
@@ -239,7 +241,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
         #if node not in expanded
         if node.State not in expanded:
             #expanded.add(node)
-            expanded.add(node.State)
+            expanded.append(node.State)
             successors = problem.getSuccessors(node.State)
             #for its child of the node
             for successor in successors:
