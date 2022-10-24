@@ -19,14 +19,32 @@ Pacman agents (in searchAgents.py).
 
 import util
 
-#We tie the Node with its Parent and the Move we made to get there together
-#in order to be able to follow our initial path back
+###############################CLASSES AND FUNCTIONS THAT ALL METHODS USE###############################
+
 class Node:
-    def __init__(self, state, parent, move): 
-        self.State = state
+    def __init__(self, state, parent, move): #We tie the Node with its Parent and the Move we made to get there together                                          
+        self.State = state  #in order to be able to follow our initial path back
         self.Parent = parent
         self.Move = move
 
+#The same class but we will need the cost as well for the UCS and A*
+class NodeWCost:
+    def __init__(self, state, parent, move, cost): 
+        self.State = state
+        self.Parent = parent
+        self.Move = move
+        self.Cost = cost
+
+#Return path_to_node function
+def path_to_Node(node):
+    path = []
+    #Until you reach the start node, add the moves to the path and check the parent node
+    while(node.Parent != None):
+        path.append(node.Move)
+        node = node.Parent
+    #We must return in the reverse order, the move we appended first is essentially the last
+    return path[::-1]
+###############################CLASSES AND FUNCTIONS THAT ALL METHODS USE###############################
 
 class SearchProblem:
     """
@@ -151,7 +169,7 @@ def breadthFirstSearch(problem: SearchProblem):
             successors = problem.getSuccessors(node.State)
             #for its child of the node
             for successor in successors:
-                #We need to turn the successor into our Node class before pushing it to our stack
+                #We need to turn the successor into our Node class before pushing it to our queue
                 successorNode = Node(successor[0], node, successor[1])
                 #frontier push(child)
                 frontier.push(successorNode)
@@ -168,8 +186,8 @@ def uniformCostSearch(problem: SearchProblem):
     expanded = set() 
 
     #frontier = [startNode]
-    startNode = Node(problem.getStartState(), None, None)
-    frontier.push(startNode, 0)
+    startNode = NodeWCost(problem.getStartState(), None, None, 0)
+    frontier.push(startNode, startNode.Cost) #push the start node into the Pqueue with cost zero
 
     while not frontier.isEmpty():
         node = frontier.pop()
@@ -184,10 +202,10 @@ def uniformCostSearch(problem: SearchProblem):
             successors = problem.getSuccessors(node.State)
             #for its child of the node
             for successor in successors:
-                #We need to turn the successor into our Node class before pushing it to our stack
-                successorNode = Node(successor[0], node, successor[1])
+                #We need to turn the successor into our Node class before pushing it to our PriorityQueue
+                successorNode = NodeWCost(successor[0], node, successor[1], node.Cost + successor[2])
                 #frontier push(child)
-                frontier.push(successorNode, successor[2])
+                frontier.push(successorNode, successorNode.Cost)
 
 
     util.raiseNotDefined()
@@ -202,15 +220,15 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    from util import PriorityQueueWithFunction
+    from util import PriorityQueue
    
-    #We use the PriorityQueueWithFunction for A*
-    frontier = PriorityQueueWithFunction(heuristic)
+    #We use the PriorityQueue for A*
+    frontier = PriorityQueue()
     expanded = set() 
 
     #frontier = [startNode]
-    startNode = Node(problem.getStartState(), None, None)
-    frontier.push(startNode)
+    startNode = NodeWCost(problem.getStartState(), None, None, 0)
+    frontier.push(startNode, 0 + heuristic(problem.getStartState(), problem)) #push the cost of the move (zero) and the value of the heuristic
 
     while not frontier.isEmpty():
         node = frontier.pop()
@@ -225,21 +243,11 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
             successors = problem.getSuccessors(node.State)
             #for its child of the node
             for successor in successors:
-                #We need to turn the successor into our Node class before pushing it to our stack
-                successorNode = Node(successor[0], node, successor[1])
+                #We need to turn the successor into our Node class before pushing it to our PriorityQueue
+                successorNode = NodeWCost(successor[0], node, successor[1], node.Cost + successor[2])
                 #frontier push(child)
-                frontier.push(successorNode)
+                frontier.push(successorNode, successorNode.Cost + heuristic(successorNode.State, problem))
     util.raiseNotDefined()
-
-#Return path_to_node function
-def path_to_Node(node):
-    path = []
-    #Until you reach the start node, add the moves to the path and check the parent node
-    while(node.Parent != None):
-        path.append(node.Move)
-        node = node.Parent
-    #We must return in the reverse order, the move we appended first is essentially the last
-    return path[::-1]
 
 # Abbreviations
 bfs = breadthFirstSearch
