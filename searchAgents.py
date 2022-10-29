@@ -396,7 +396,6 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
 
     "*** YOUR CODE HERE ***"
     maxDist = 0
-    dist = 0
     for corner in corners: #for every corner 
         if(corner in state[1]): #check if we have already visited it
             continue
@@ -428,6 +427,7 @@ class FoodSearchProblem:
         self.startingGameState = startingGameState
         self._expanded = 0 # DO NOT CHANGE
         self.heuristicInfo = {} # A dictionary for the heuristic to store information
+        self.goal = () #to be able to call the manhattan heuristic
 
     def getStartState(self):
         return self.start
@@ -499,7 +499,16 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    #Same logic as with the corners heuristic
+    maxDist = 0
+    for food in foodGrid.asList():
+        problem.goal = food
+        dist = manhattanHeuristic(position, problem)
+        if(dist > maxDist):
+            maxDist = dist
+            furthestFood = food
+
+    return maxDist
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -530,6 +539,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
+        return search.ucs(problem) #calling our search function
         util.raiseNotDefined()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -566,6 +576,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
+        if state in self.food.asList(): return True #if we are in a food "spot" then return true
+        else: return False #else return false
         util.raiseNotDefined()
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:

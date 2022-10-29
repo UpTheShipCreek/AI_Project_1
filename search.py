@@ -185,7 +185,7 @@ def uniformCostSearch(problem: SearchProblem):
    
     #We use the PriorityQueue for UCS
     frontier = PriorityQueue()
-    expanded = set() 
+    expanded = [] 
 
     #frontier = [startNode]
     startNode = NodeWCost(problem.getStartState(), None, None, 0)
@@ -200,7 +200,7 @@ def uniformCostSearch(problem: SearchProblem):
         #if node not in expanded
         if node.State not in expanded:
             #expanded.add(node)
-            expanded.add(node.State)
+            expanded.append(node.State)
             successors = problem.getSuccessors(node.State)
             #for its child of the node
             for successor in successors:
@@ -208,8 +208,6 @@ def uniformCostSearch(problem: SearchProblem):
                 successorNode = NodeWCost(successor[0], node, successor[1], node.Cost + successor[2])
                 #frontier push(child)
                 frontier.push(successorNode, successorNode.Cost)
-
-
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
