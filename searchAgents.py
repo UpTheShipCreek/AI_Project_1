@@ -292,8 +292,7 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-
-    
+        self.goal = (right, top)
 
     def getStartState(self):
         """
@@ -301,9 +300,7 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        #state = (current_coordinates, visited_corner_list[])
-        #In order not to change what I've been using as a state in the search algorithms 
-        #I should implemment the visited_corner as a dictionary to every state
+        #state = (current_coordinates, visited_corner_list[], ...) since we need to keep track of the corners we have visited
         return (self.startingPosition, [])
         util.raiseNotDefined()
         
@@ -314,8 +311,7 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         #initialize the counter for the corners
         counter = 0 
-
-        #state = (current_coordinates, visited_corner_list[])
+        
         coordinates = state[0]
         visited_corners = state[1]
 
@@ -360,8 +356,8 @@ class CornersProblem(search.SearchProblem):
             if(not hitsWall):
                 next_coordinates = (nextx,nexty)
                 visited_corners = state[1].copy()
-                if(next_coordinates in self.corners and next_coordinates not in state[1]):
-                    visited_corners.append(next_coordinates)
+                if(next_coordinates in self.corners and next_coordinates not in state[1]): #if our next_coordiantes represent a corner that we haven't visited yet
+                    visited_corners.append(next_coordinates) #add them to our visited corners list
                 successor = ((next_coordinates, visited_corners), action, 1)
                 successors.append(successor) 
 
@@ -399,7 +395,17 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    maxDist = 0
+    dist = 0
+    for corner in corners: #for every corner 
+        if(corner in state[1]): #check if we have already visited it
+            continue
+        problem.goal = corner 
+        dist = manhattanHeuristic(state[0], problem) #calculate all the manhattan distances 
+        if(dist > maxDist): #keep the largest as a rough approximation (we keep the largest cause we already know this approximation is <= from the actual cost, so the bigger the number the closer we get to the actual solution)
+            maxDist = dist
+    return maxDist
+    #return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
